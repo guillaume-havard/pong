@@ -78,9 +78,9 @@ class Ball:
         self.color = color
         self.pos = [int(x) for x in pos]
         self.size = 20
-        self.speed_x = 10 + random.randint(0, 10)
+        self.speed_x = 0 + random.randint(0, 10)
         self.speed_x *= random.choice((-1, 1))
-        self.speed_y = 10 + random.randint(0, 10)
+        self.speed_y = 0 + random.randint(0, 10)
         self.speed_y *= random.choice((-1, 1))
 
         print("Nouvelle Balle")
@@ -92,7 +92,7 @@ class Ball:
         one ball step
         return a non empty string if the ball fall on one side
 
-        /!\ the ball is out when it touches the floor and ceiling
+        /!\ Make the ball bounce when its border touch the paddle or border        
         """
         self.pos[0] += self.speed_x
         self.pos[1] += self.speed_y
@@ -103,16 +103,13 @@ class Ball:
         rect_coll = pygame.Rect((0, 0), (self.size, self.size))
         rect_coll.center = self.pos
 
-        if not self.level.contains(rect_coll):
-            if self.pos[0] < self.level.width / 2:
-                return "left"
-            elif self.pos[0] > self.level.width / 2:
-                return "right"
-            else:
-                print("magic", self.pos)
-                return "magic"
+        
+        if self.pos[0] < 0:
+            return "left"
+        elif self.pos[0] > self.level.width:
+            return "right"            
         else:
-            print("inside")
+            return "inside"
 
     def test_collisions(self, players):
         """
