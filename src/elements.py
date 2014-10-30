@@ -56,6 +56,16 @@ class Player:
         if self.rect.bottom > self.level.bottom:
             self.rect.bottom = self.level.bottom
 
+    def render(self, screen):
+        """
+        Blit the player on the screen
+
+        :param screen: pygame.Surface you want the player on
+        :param self
+        :return:
+        """
+        pygame.draw.rect(screen, self.color, self.rect)
+
 
 class Ball:
     """
@@ -64,7 +74,7 @@ class Ball:
     speed
     direction
     """
-
+    # TODO: deduce the position from the screen by default.
     def __init__(self, level, color, pos):
         """
         level pygame.Rect [in] : reference to the level Rect
@@ -77,7 +87,7 @@ class Ball:
         self.level = level
         self.color = color
         self.pos = [int(x) for x in pos]
-        self.radius = 10
+        self.radius = 5
         self.speed_x = 5 + random.randint(0, 5)
         self.speed_x *= random.choice((-1, 1))
         self.speed_y = 0 + random.randint(0, 5)
@@ -87,7 +97,7 @@ class Ball:
         print(self.pos)
         print(self.speed_x, self.speed_y)
 
-    def step(self, players):
+    def step(self, player_left, player_right):
         """
         one ball step
         test if collision with players
@@ -96,21 +106,40 @@ class Ball:
 
         /!\ Make the ball bounce when its circumference touch the paddle or border
         """
-        self.pos[0] += self.speed_x
-        self.pos[1] += self.speed_y
+        new_x = self.pos[0] + self.speed_x
+        new_y = self.pos[1] + self.speed_y
 
-        rect_coll = pygame.Rect((0, 0), (self.radius * 2, self.radius * 2))
-        rect_coll.center = self.pos
-
-        if rect_coll.collidelist(players) != -1:
-            self.speed_x = -self.speed_x
-
-        if not 0 <= self.pos[1] <= self.level.height:
-            self.speed_y = -self.speed_y
-        
-        if self.pos[0] < 0:
+        # Collisions with the walls
+        if new_x - self.radius < 0:
             return "left"
-        elif self.pos[0] > self.level.width:
-            return "right"            
-        else:
+        elif new_x + self.radius > self.level.width:
+            return "right"
+
+        if not 0 <= new_y <= self.level.height:
+            self.speed_y = -self.speed_y
+
+        # Collisions with the players
+        rect_coll = pygame.Rect((0, 0), (self.radius * 2, self.radius * 2))
+        rect_coll.center = (new_x, new_y)
+
+        if rect_coll.colliderect(player_left) and self.speed_x != abs(self.speed_x):
+            self.speed_x = abs(self.speed_x)
             return ""
+        if rect_coll.colliderect(player_right) and self.speed_x == abs(self.speed_x):
+            self.speed_x = -abs(self.speed_x)
+            return ""
+
+        self.pos[0] = new_x
+        self.pos[1] = new_y
+
+        return ""
+
+    def render(self, screen):
+        """
+        Blit the ball on the screen
+
+        :param screen: pygame.Surface you want the ball on
+        :param self
+        :return:
+        """
+        pygame.draw.circle(screen, self.color, self.pos, self.radius)
