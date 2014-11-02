@@ -31,14 +31,16 @@ black_color = pygame.Color(0, 0, 0)
 
 # TODO: change the initialisation to be cleaner.
 player1 = Player(window_surface_obj.get_rect(), red_color,
-                 pygame.Rect((0, 0), (10, 100)))
+                 pygame.Rect((0, 0), (10, 100)), dict(up=K_a, down=K_q))
 player1.rect.center = (20, WINDOW_HEIGHT / 2)
 player2 = Player(window_surface_obj.get_rect(), blue_color,
-                 pygame.Rect((0, 0), (10, 100)))
+                 pygame.Rect((0, 0), (10, 100)), dict(up=K_UP, down=K_DOWN))
 player2.rect.center = (WINDOW_WIDTH - 20, WINDOW_HEIGHT / 2)
 
 ball = Ball(window_surface_obj.get_rect(), white_color,
             (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
+
+keys = pygame.key.get_pressed()
 
 while True:
 
@@ -57,28 +59,17 @@ while True:
             pass
         elif event.type == MOUSEBUTTONUP:
             pass
-        # TODO: Change the event gestion (use pressed_keys())
         elif event.type == KEYDOWN:
-            if event.key == K_UP:
-                player2.move_up()
-            elif event.key == K_DOWN:
-                player2.move_down()
-            elif event.key == K_a:
-                player1.move_up()
-            elif event.key == K_q:
-                player1.move_down()
-            elif event.key == K_ESCAPE:
+            if event.key == K_ESCAPE:
                 pygame.event.post(pygame.event.Event(QUIT))
-        elif event.type == KEYUP:
-            if event.key in (K_UP, K_DOWN):
-                player2.move_stop()
-            if event.key in (K_a, K_q):
-                player1.move_stop()
 
-    player1.step()
-    player2.step()
+        keys = pygame.key.get_pressed()
+
+    player1.step(keys)
+    player2.step(keys)
     ret_ball = ball.step(player1, player2)
 
+    # TODO: Count score !
     if ret_ball == "left":
         print("Le joueur 1 a marque")
         player1.score += 1
@@ -93,8 +84,6 @@ while True:
     player1.render(window_surface_obj)
     player2.render(window_surface_obj)
     ball.render(window_surface_obj)
-    pygame.draw.rect(window_surface_obj, player2.color,
-                     (ball.pos[0] - ball.radius, ball.pos[1] - ball.radius, ball.radius * 2, ball.radius * 2), 2)
-
+    
     pygame.display.update()
     fps_clock.tick(30)

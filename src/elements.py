@@ -12,16 +12,18 @@ class Player:
         position and size
     """
 
-    def __init__(self, level, color, rect):
+    def __init__(self, level, color, rect, ctrl):
         """
         level pygame.Rect [in] : reference to the level Rect
         color pygame.Color [in] : color of the player
         rect pygame.Rect [in] : pos and size of the paddle
+        :param ctrl [in] : Dict() with "up" adn "down" keys
         """
         self.level = level
         self.color = color
         self.rect = rect
         self.score = 0
+        self.ctrl = ctrl
 
         self.speed = 10
         self.moving = 0
@@ -44,17 +46,19 @@ class Player:
         """
         self.moving = 0
 
-    def step(self):
+    def step(self, keys):
         """
         Step in the player state
+
+        :param keys [in]: list of pressed keys.
         """
-        self.rect.bottom += self.moving * self.speed
+        if keys[self.ctrl["up"]]:
+            self.rect.bottom += -self.speed
 
-        if self.rect.top < 0:
-            self.rect.top = 0
+        elif keys[self.ctrl["down"]]:
+            self.rect.bottom += self.speed
 
-        if self.rect.bottom > self.level.bottom:
-            self.rect.bottom = self.level.bottom
+        self.rect.clamp_ip(self.level)
 
     def render(self, screen):
         """
