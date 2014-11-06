@@ -14,6 +14,7 @@
 import pygame, sys
 from pygame.locals import *
 from elements import *
+from gui import *
 
 pygame.init()
 fps_clock = pygame.time.Clock()
@@ -84,6 +85,8 @@ while True:
     player1.render(window_surface_obj)
     player2.render(window_surface_obj)
     ball.render(window_surface_obj)
-    
+
+    print_text(window_surface_obj, "TESTtt", (50, 50))
+
     pygame.display.update()
     fps_clock.tick(30)
